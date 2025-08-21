@@ -12,11 +12,17 @@ export default function Login() {
     e.preventDefault();
     try {
       const { data } = await api.post("/auth/login", { email, password });
+
+      // Save token and role
       localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.role);
+
+      // Redirect based on role
       if (data.role === "admin") navigate("/admin");
-      else navigate("/reporter");
+      else if (data.role === "reporter") navigate("/reporter");
+      else navigate("/"); // fallback
     } catch (err) {
-      alert("Login failed");
+      alert("Login failed. Please check your credentials.");
     }
   };
 
@@ -33,6 +39,7 @@ export default function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full p-2 border rounded mb-2"
+          required
         />
         <input
           type="password"
@@ -40,6 +47,7 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full p-2 border rounded mb-2"
+          required
         />
         <button className="w-full bg-blue-600 text-white py-2 rounded">
           Login

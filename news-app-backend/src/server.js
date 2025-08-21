@@ -5,7 +5,7 @@ import authRoutes from "./routes/authRoutes.js";
 import articleRoutes from "./routes/articleRoutes.js";
 import cors from "cors";
 import { startCronJobs } from "./utils/cronJobs.js";
-// import adminRoutes from "./routes/adminRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 // ...
 
@@ -20,7 +20,7 @@ app.use(
     credentials: true, // if you’re using cookies/auth headers
   })
 );
-// app.use("/api/admin", adminRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/articles", articleRoutes);
 

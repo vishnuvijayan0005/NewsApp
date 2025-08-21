@@ -10,8 +10,8 @@ export default function Navbar() {
       <div className="space-x-4">
         <Link to="/">Home</Link>
         <Link to="/login">Login</Link>
-        <Link to="/admin">Admin</Link>
-        <Link to="/reporter">Reporter</Link>
+        {/* <Link to="/admin">Admin</Link>
+        <Link to="/reporter">Reporter</Link> */}
       </div>
     </nav>
   );
