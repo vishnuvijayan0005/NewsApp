@@ -13,13 +13,13 @@ export default function Login({ setIsLoggedIn }) {
     const role = localStorage.getItem("role");
     const expiry = localStorage.getItem("loginExpiry");
 
-    // Only redirect if already logged in
+    // Redirect if already logged in and not expired
     if (token && role && expiry && new Date().getTime() < expiry) {
       setIsLoggedIn(true);
       if (role === "admin") navigate("/admin");
       else if (role === "reporter") navigate("/reporter");
     }
-    // Otherwise do nothing → stay on login only if user clicked login
+    // else stay on login page if user clicked login
   }, [navigate, setIsLoggedIn]);
 
   const handleSubmit = async (e) => {
@@ -27,7 +27,8 @@ export default function Login({ setIsLoggedIn }) {
     try {
       const { data } = await api.post("/auth/login", { email, password });
 
-      const expireTime = new Date().getTime() + 60 * 60 * 1000; // 1 hour
+      // 1 hour expiry
+      const expireTime = new Date().getTime() + 60 * 60 * 1000;
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
@@ -39,7 +40,12 @@ export default function Login({ setIsLoggedIn }) {
       else if (data.role === "reporter") navigate("/reporter");
       else navigate("/");
     } catch (err) {
-      alert("Login failed. Please check your credentials.");
+      // Display specific error from backend if exists
+      if (err.response && err.response.data && err.response.data.message) {
+        alert(err.response.data.message);
+      } else {
+        alert("Login failed. Please check your credentials.");
+      }
     }
   };
 

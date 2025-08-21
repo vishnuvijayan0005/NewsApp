@@ -16,6 +16,13 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "User not found" });
     }
 
+    // ❌ Check if user is disabled
+    if (user.status === "disabled") {
+      return res
+        .status(403)
+        .json({ message: "Your account is disabled. Contact admin." });
+    }
+
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid password" });
@@ -47,7 +54,7 @@ export const registerReporter = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password, // 🔑 Will be hashed automatically in User model (pre-save)
+      password,
       role: "reporter",
     });
 
