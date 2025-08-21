@@ -1,26 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../api/client.js";
 import { useNavigate } from "react-router-dom";
 import React from "react";
 
-export default function Login() {
+export default function Login({ setIsLoggedIn }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    const expiry = localStorage.getItem("loginExpiry");
+
+    // Only redirect if already logged in
+    if (token && role && expiry && new Date().getTime() < expiry) {
+      setIsLoggedIn(true);
+      if (role === "admin") navigate("/admin");
+      else if (role === "reporter") navigate("/reporter");
+    }
+    // Otherwise do nothing → stay on login only if user clicked login
+  }, [navigate, setIsLoggedIn]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const { data } = await api.post("/auth/login", { email, password });
 
-      // Save token and role
+      const expireTime = new Date().getTime() + 60 * 60 * 1000; // 1 hour
+
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
+      localStorage.setItem("loginExpiry", expireTime);
 
-      // Redirect based on role
+      setIsLoggedIn(true);
+
       if (data.role === "admin") navigate("/admin");
       else if (data.role === "reporter") navigate("/reporter");
-      else navigate("/"); // fallback
+      else navigate("/");
     } catch (err) {
       alert("Login failed. Please check your credentials.");
     }
