@@ -33,10 +33,7 @@ export default function ArticleCard({ article }) {
 
       {/* Read More Button */}
       {article._id && (
-        <Link
-          to={`/news/${article._id}`}
-          className="text-blue-600 mt-3 inline-block"
-        >
+        <Link to={article.source} className="text-blue-600 mt-3 inline-block">
           More Details →
         </Link>
       )}
