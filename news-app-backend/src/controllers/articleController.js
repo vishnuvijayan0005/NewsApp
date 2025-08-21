@@ -1,6 +1,10 @@
 import Article from "../models/Article.js";
-import { fetchExternalNews } from "../utils/externalApi.js";
+import {
+  fetchSerapiNews,
+  fetchSerapiNewsForAllCategories,
+} from "../utils/externalApi.js";
 
+// Create local article (reporter/admin)
 export const createArticle = async (req, res) => {
   try {
     const article = await Article.create({
@@ -14,6 +18,7 @@ export const createArticle = async (req, res) => {
   }
 };
 
+// Get stored articles (optionally by category)
 export const getArticles = async (req, res) => {
   try {
     const { category } = req.query;
@@ -27,11 +32,29 @@ export const getArticles = async (req, res) => {
   }
 };
 
-// ✅ Now stores fetched news in DB
-export const syncExternalNews = async (req, res) => {
+// Manually sync a single category (admin-only)
+export const syncSerapiNews = async (req, res) => {
   try {
-    const articles = await fetchExternalNews();
-    res.json({ message: "External news synced", count: articles.length });
+    const { category = "general" } = req.body;
+    const added = await fetchSerapiNews(category);
+    res.json({
+      message: "SerpAPI sync complete",
+      category,
+      count: added.length,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Manually sync all categories (admin-only)
+export const syncSerapiNewsAll = async (_req, res) => {
+  try {
+    const total = await fetchSerapiNewsForAllCategories();
+    res.json({
+      message: "SerpAPI sync (all categories) complete",
+      total,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -1,39 +1,81 @@
 import axios from "axios";
 import Article from "../models/Article.js";
+import dotenv from "dotenv";
+dotenv.config();
 
-export const fetchExternalNews = async () => {
+// Map categories to Google News queries
+export const CATEGORY_QUERIES = {
+  all: "latest news",
+  politics: "politics news",
+  sports: "sports news",
+  tech: "technology news",
+  business: "business news",
+  health: "health news",
+  general: "top news",
+};
+
+// Fetch & store SerpAPI (Google News engine) results into DB for a category
+export const fetchSerapiNews = async (category = "general") => {
   try {
-    const response = await axios.get(`https://newsapi.org/v2/top-headlines`, {
+    const q = CATEGORY_QUERIES[category] || CATEGORY_QUERIES.general;
+
+    const { data } = await axios.get("https://serpapi.com/search", {
       params: {
-        country: "us", // or "in"
-        apiKey: process.env.NEWS_API_KEY,
-        pageSize: 10,
+        engine: "google_news",
+        q,
+        api_key: process.env.SERAPI_KEY,
+        hl: "en",
+        gl: "us",
       },
+      timeout: 15000,
     });
 
-    const articles = response.data.articles;
+    const results = data?.news_results || [];
+    const saved = [];
 
-    const savedArticles = [];
-    for (const article of articles) {
-      // check duplicate by URL
-      const exists = await Article.findOne({ source: article.url });
-      if (!exists) {
-        const newArticle = await Article.create({
-          title: article.title,
-          description: article.description || "",
-          content: article.content || "",
-          category: "general",
-          imageUrl: article.urlToImage,
-          author: null, // external so no local user
-          source: article.url, // keep track of external source
-        });
-        savedArticles.push(newArticle);
-      }
+    for (const item of results) {
+      const link = item?.link;
+      if (!link) continue;
+
+      // ✅ check by url + source (serpapi), not "source" field as URL
+      const exists = await Article.findOne({ url: link, source: "serpapi" });
+      if (exists) continue;
+
+      const doc = await Article.create({
+        title: item.title || "Untitled",
+        description: item.snippet || item.title || "",
+        content: item.snippet || "",
+        category,
+        imageUrl: item.thumbnail?.url || item.thumbnail || null,
+        author: null, // ✅ external news = no user reference
+        source: "serpapi", // ✅ matches schema enum
+        url: link, // ✅ store actual article link
+      });
+
+      saved.push(doc);
     }
 
-    return savedArticles;
+    console.log(`✅ Saved ${saved.length} new ${category} articles`);
+    return saved;
   } catch (err) {
-    console.error("Error fetching external news:", err.message);
-    throw new Error("Failed to fetch external news");
+    console.error(
+      `❌ SerpAPI fetch error [${category}]:`,
+      err.response?.data || err.message
+    );
+    return [];
   }
+};
+
+// Fetch & store for all categories at once
+export const fetchSerapiNewsForAllCategories = async () => {
+  const cats = Object.keys(CATEGORY_QUERIES);
+  let total = 0;
+
+  for (const cat of cats) {
+    const added = await fetchSerapiNews(cat);
+    total += added.length;
+  }
+
+  console.log(`🌍 Total new articles saved: ${total}`);
+  return total;
 };

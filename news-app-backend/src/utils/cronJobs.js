@@ -1,13 +1,13 @@
 import cron from "node-cron";
-import { fetchExternalNews } from "./externalApi.js";
+import { fetchSerapiNewsForAllCategories } from "./externalApi.js";
 
 export const startCronJobs = () => {
-  // Runs every 30 minutes
+  // Every 30 minutes
   cron.schedule("*/30 * * * *", async () => {
-    console.log("⏳ Auto-syncing external news...");
+    console.log("⏳ Auto-syncing SerpAPI news for all categories...");
     try {
-      const articles = await fetchExternalNews();
-      console.log(`✅ Synced ${articles.length} new articles`);
+      const total = await fetchSerapiNewsForAllCategories();
+      console.log(`✅ Synced ${total} new articles across all categories`);
     } catch (err) {
       console.error("❌ Cron job failed:", err.message);
     }

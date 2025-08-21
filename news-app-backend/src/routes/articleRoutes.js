@@ -2,14 +2,27 @@ import express from "express";
 import {
   createArticle,
   getArticles,
-  syncExternalNews,
+  syncSerapiNews,
+  syncSerapiNewsAll,
 } from "../controllers/articleController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", getArticles); // fetch local + external stored
-router.post("/", protect, createArticle); // reporter/admin create
-router.post("/sync", protect, adminOnly, syncExternalNews); // admin pulls from NewsAPI
+// All stored articles (local + external already in DB)
+// Optional: /api/articles?category=technology
+router.get("/", getArticles);
+
+// Reporter/Admin create local article
+router.post("/", protect, createArticle);
+
+// Admin-only: manual sync for one category
+router.post("/sync-serapi", protect, adminOnly, syncSerapiNews);
+
+// Admin-only: manual sync for all categories
+router.post("/sync-serapi-all", protect, adminOnly, syncSerapiNewsAll);
+
+// 🔹 NEW: shortcut route used by AdminDashboard.jsx
+router.post("/sync", protect, adminOnly, syncSerapiNewsAll);
 
 export default router;
