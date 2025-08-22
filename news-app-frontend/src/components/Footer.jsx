@@ -28,10 +28,10 @@ export default function Footer() {
         {/* About */}
         <div>
           <h2 className="text-xl font-bold mb-3">NewsApp</h2>
-          <p className="text-gray-200 text-sm mb-4">
+          <p className="text-gray-200 text-m mb-4">
             Stay updated with the latest and most reliable news articles. A
-            modern news portal built with MERN stack.And developed by Vishnu
-            Vijayan.
+            modern news portal built with MERN stack.And developed by{" "}
+            <b>VISHNU VIJAYAN</b>.
           </p>
           {/* Social Icons */}
           <div className="flex space-x-4">

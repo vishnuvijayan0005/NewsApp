@@ -28,39 +28,30 @@ export default function Home() {
     fetchArticles();
   }, [category]);
 
-  // ✅ Scroll detection
   useEffect(() => {
-    const handleScroll = () => {
-      setShowScroll(window.scrollY > 300);
-    };
+    const handleScroll = () => setShowScroll(window.scrollY > 300);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ✅ Scroll to top
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // ✅ Scroll to bottom
-  const scrollToBottom = () => {
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToBottom = () =>
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-  };
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 min-h-screen px-6 py-8 relative">
+    <div className="min-h-screen px-6 py-8 bg-gradient-to-b from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500">
       {/* Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-3">
+      <div className="text-center mb-10">
+        <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">
           📰 NewsApp
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
           Stay informed with the latest updates from around the world
         </p>
       </div>
 
       {/* Category Tabs */}
-      <div className="sticky top-0 z-20 bg-gray-50/70 dark:bg-gray-900/70 backdrop-blur-md py-3 mb-6">
+      <div className="sticky top-0 z-20 bg-white dark:bg-gray-800/80 backdrop-blur-md py-3 mb-6 shadow-sm rounded-xl transition-colors duration-500">
         <CategoryTabs
           categories={[
             "all",
@@ -76,13 +67,13 @@ export default function Home() {
         />
       </div>
 
-      {/* Articles Section */}
+      {/* Articles */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="animate-pulse bg-white dark:bg-gray-800 rounded-xl h-64 shadow"
+              className="h-64 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-xl animate-pulse shadow-lg"
             />
           ))}
         </div>
@@ -93,7 +84,7 @@ export default function Home() {
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-500 dark:text-gray-400 mt-10">
+        <p className="text-center text-gray-500 dark:text-gray-400 mt-10 text-lg">
           No articles found in this category.
         </p>
       )}

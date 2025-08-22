@@ -11,7 +11,22 @@ export default function Login({ setIsLoggedIn }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [darkMode, setDarkMode] = useState(
+    document.documentElement.classList.contains("dark")
+  );
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setDarkMode(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -22,6 +37,7 @@ export default function Login({ setIsLoggedIn }) {
       setIsLoggedIn(true);
       if (role === "admin") navigate("/admin");
       else if (role === "reporter") navigate("/reporter");
+      else navigate("/");
     }
   }, [navigate, setIsLoggedIn]);
 
@@ -70,17 +86,29 @@ export default function Login({ setIsLoggedIn }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black p-4">
-      <div className="bg-gray-900 shadow-2xl rounded-2xl w-full max-w-md p-8 relative">
-        <h2 className="text-3xl font-bold mb-6 text-white text-center">
+    <div
+      className={`min-h-screen flex items-center justify-center p-4 transition-colors duration-500 ${
+        darkMode ? "bg-gray-900" : "bg-gray-100"
+      }`}
+    >
+      <div
+        className={`w-full max-w-md p-8 relative rounded-2xl shadow-2xl transition-colors duration-500
+          ${
+            darkMode
+              ? "bg-gray-800 text-gray-100 shadow-lg shadow-black/40"
+              : "bg-white text-gray-900 shadow-md shadow-gray-400/20"
+          }`}
+      >
+        <h2 className="text-3xl font-bold mb-6 text-center">
           {isRegistering ? "Register as Reporter" : "Login"}
         </h2>
 
-        {/* Toggle button */}
         <div className="text-center mb-6">
           <button
             type="button"
-            className="text-yellow-400 hover:underline font-medium transition"
+            className={`hover:underline font-medium transition-colors duration-300 ${
+              darkMode ? "text-yellow-400" : "text-blue-600"
+            }`}
             onClick={() => setIsRegistering(!isRegistering)}
           >
             {isRegistering
@@ -89,40 +117,30 @@ export default function Login({ setIsLoggedIn }) {
           </button>
         </div>
 
-        {/* Inline notification */}
         <AnimatePresence>
           {message.text && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className={`mb-4 flex items-center gap-2 p-3 rounded-lg border-l-4 text-sm font-medium shadow-md ${
-                message.type === "success"
-                  ? "bg-green-100 border-green-500 text-green-800"
-                  : message.type === "error"
-                  ? "bg-red-100 border-red-500 text-red-800"
-                  : "bg-yellow-100 border-yellow-500 text-yellow-800"
-              }`}
+              className={`mb-4 flex items-center gap-2 p-3 rounded-lg border-l-4 text-sm font-medium shadow-md
+                ${
+                  message.type === "success"
+                    ? "bg-green-100 border-green-500 text-green-800"
+                    : message.type === "error"
+                    ? "bg-red-100 border-red-500 text-red-800"
+                    : "bg-yellow-100 border-yellow-500 text-yellow-800"
+                }`}
             >
-              {/* Icon */}
-              {message.type === "success" && (
-                <span className="text-green-600">✔️</span>
-              )}
-              {message.type === "error" && (
-                <span className="text-red-600">❌</span>
-              )}
-              {message.type === "warning" && (
-                <span className="text-yellow-600">⚠️</span>
-              )}
-
-              {/* Message text */}
+              {message.type === "success" && <span>✔️</span>}
+              {message.type === "error" && <span>❌</span>}
+              {message.type === "warning" && <span>⚠️</span>}
               <span>{message.text}</span>
             </motion.div>
           )}
         </AnimatePresence>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name field */}
           {isRegistering && (
             <div className="relative">
               <FaUser className="absolute top-3 left-3 text-gray-400" />
@@ -131,13 +149,16 @@ export default function Login({ setIsLoggedIn }) {
                 placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-10 p-3 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-gray-800 text-white"
+                className={`w-full pl-10 p-3 border rounded-lg focus:ring-2 focus:outline-none transition-colors duration-500 ${
+                  darkMode
+                    ? "bg-gray-700 text-white border-gray-600 focus:ring-yellow-400"
+                    : "bg-white text-gray-900 border-gray-300 focus:ring-blue-500"
+                }`}
                 required
               />
             </div>
           )}
 
-          {/* Email field */}
           <div className="relative">
             <FaEnvelope className="absolute top-3 left-3 text-gray-400" />
             <input
@@ -145,12 +166,15 @@ export default function Login({ setIsLoggedIn }) {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-10 p-3 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-gray-800 text-white"
+              className={`w-full pl-10 p-3 border rounded-lg focus:ring-2 focus:outline-none transition-colors duration-500 ${
+                darkMode
+                  ? "bg-gray-700 text-white border-gray-600 focus:ring-yellow-400"
+                  : "bg-white text-gray-900 border-gray-300 focus:ring-blue-500"
+              }`}
               required
             />
           </div>
 
-          {/* Password field */}
           <div className="relative">
             <FaLock className="absolute top-3 left-3 text-gray-400" />
             <input
@@ -158,20 +182,32 @@ export default function Login({ setIsLoggedIn }) {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-10 p-3 border border-gray-700 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-gray-800 text-white"
+              className={`w-full pl-10 p-3 border rounded-lg focus:ring-2 focus:outline-none transition-colors duration-500 ${
+                darkMode
+                  ? "bg-gray-700 text-white border-gray-600 focus:ring-yellow-400"
+                  : "bg-white text-gray-900 border-gray-300 focus:ring-blue-500"
+              }`}
               required
             />
           </div>
 
-          {/* Submit button */}
-          <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded-xl font-semibold transition shadow-md hover:shadow-lg">
+          <button
+            className={`w-full py-3 rounded-xl font-semibold transition shadow-md hover:shadow-lg ${
+              darkMode
+                ? "bg-yellow-500 hover:bg-yellow-600 text-black"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
+          >
             {isRegistering ? "Submit Registration" : "Login"}
           </button>
         </form>
 
-        {/* Footer note */}
         {isRegistering && (
-          <p className="mt-4 text-sm text-gray-400 text-center">
+          <p
+            className={`mt-4 text-sm text-center transition-colors duration-500 ${
+              darkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
             After registration, admin verification is required. Please try
             logging in after 24 hours.
           </p>
