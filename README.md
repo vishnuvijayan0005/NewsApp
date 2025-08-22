@@ -29,15 +29,27 @@ It includes features like:
 
 ### Dark Mode
 
-![Home Dark Mode](screenshots/home_dark.png)
+![Home Dark Mode](screenshots/home.dark.png)
 
 ### Login / Register
 
 
 ![Login dark Mode](screenshots/login.dark.png)
-![Registration ](screenshots/registeration.png)
 
----
+
+![Registration ](screenshots/registrationform.png)
+
+### Admin Dashboard / Reporter Dashboard
+
+![Admin Dashboard ](screenshots/admin.dash.png)
+
+
+![Reporter Dashboard ](screenshots/reporter.dash.png)
+
+
+### Footer
+
+![Footer ](screenshots/footer.png)
 
 ## **Tech Stack**
 
@@ -51,30 +63,7 @@ It includes features like:
 
 ## **Project Structure**
 
-NewsApp/
-│
-├─ backend/ # Node.js + Express API
-│ ├─ controllers/
-│ ├─ models/
-│ ├─ routes/
-│ ├─ utils/
-│ ├─ server.js
-│ └─ package.json
-│
-├─ frontend/ # React app
-│ ├─ src/
-│ │ ├─ api/
-│ │ ├─ components/
-│ │ ├─ pages/
-│ │ ├─ App.jsx
-│ │ └─ index.js
-│ ├─ public/
-│ └─ package.json
-│
-├─ .gitignore
-├─ README.md
-└─ LICENSE
-
+![Structure of Web app](screenshots/structure.png)
 ## Setup
 
 1. Install dependencies
