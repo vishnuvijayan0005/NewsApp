@@ -1,12 +1,15 @@
 # News App Frontend
 
 ## Setup
+
 1. Install dependencies
+
    ```bash
    npm install
    ```
 
 2. Create `.env` file:
+
    ```env
    VITE_API_BASE=http://localhost:5000/api
    ```
