@@ -20,23 +20,22 @@ const articleSchema = new mongoose.Schema(
       ],
       default: "general",
     },
-    imageUrl: { type: String },
+    imageUrl: { type: String }, // ✅ base64 string OR external URL
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      default: null, // ✅ external news won’t break
+      default: null,
     },
     source: {
       type: String,
-      enum: ["local", "serpapi"], // ✅ only local/serpapi allowed
+      enum: ["local", "serpapi"],
       default: "local",
     },
-    url: { type: String }, // ✅ store actual external article link
+    url: { type: String }, // for external API articles
   },
   { timestamps: true }
 );
 
-// prevent duplicate articles by url + source
 articleSchema.index({ url: 1, source: 1 }, { unique: true });
 
 export default mongoose.model("Article", articleSchema);

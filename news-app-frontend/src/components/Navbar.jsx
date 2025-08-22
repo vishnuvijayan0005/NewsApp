@@ -4,30 +4,28 @@ import React, { useEffect, useState } from "react";
 export default function Navbar() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState("");
 
-  // Check login status on mount and after refresh
   useEffect(() => {
     const checkLogin = () => {
       const token = localStorage.getItem("token");
       const expiry = localStorage.getItem("loginExpiry");
+      const userRole = localStorage.getItem("role");
 
       if (token && expiry && new Date().getTime() < expiry) {
         setIsLoggedIn(true);
+        setRole(userRole);
       } else {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
         localStorage.removeItem("loginExpiry");
         setIsLoggedIn(false);
+        setRole("");
       }
     };
 
     checkLogin();
-
-    // Auto logout if expired
-    const interval = setInterval(() => {
-      checkLogin();
-    }, 1000);
-
+    const interval = setInterval(checkLogin, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -36,30 +34,55 @@ export default function Navbar() {
     localStorage.removeItem("role");
     localStorage.removeItem("loginExpiry");
     setIsLoggedIn(false);
+    setRole("");
     navigate("/login");
   };
 
   return (
-    <nav className="bg-blue-600 p-4 text-white flex justify-between items-center">
-      <Link to="/" className="font-bold text-xl">
-        NewsApp
-      </Link>
-      <div className="space-x-4">
-        <Link to="/">Home</Link>
-        {!isLoggedIn ? (
-          <Link to="/login">Login</Link>
-        ) : (
-          <>
-            <Link to="/admin">Admin</Link>
-            <Link to="/reporter">Reporter</Link>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 px-3 py-1 rounded"
+    <nav className="bg-blue-600 text-white shadow-md">
+      <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
+        <Link
+          to="/"
+          className="font-bold text-2xl hover:text-blue-200 transition"
+        >
+          NewsApp
+        </Link>
+        <div className="flex items-center space-x-4">
+          <Link to="/" className="hover:text-blue-200 transition">
+            Home
+          </Link>
+
+          {!isLoggedIn ? (
+            <Link
+              to="/login"
+              className="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100 transition"
             >
-              Logout
-            </button>
-          </>
-        )}
+              Login
+            </Link>
+          ) : (
+            <>
+              {role === "admin" && (
+                <Link to="/admin" className="hover:text-blue-200 transition">
+                  Admin
+                </Link>
+              )}
+              {(role === "admin" || role === "reporter") && (
+                <Link
+                  to="/report-news"
+                  className="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100 transition"
+                >
+                  {role === "admin" ? "Add News" : "Report News"}
+                </Link>
+              )}
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 px-3 py-1 rounded hover:bg-red-600 transition"
+              >
+                Logout
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );

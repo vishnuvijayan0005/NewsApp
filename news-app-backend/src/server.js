@@ -7,7 +7,9 @@ import cors from "cors";
 import { startCronJobs } from "./utils/cronJobs.js";
 import adminRoutes from "./routes/adminRoutes.js";
 
-// ...
+// ✅ ES modules: import path and __dirname fix
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 connectDB();
@@ -23,6 +25,11 @@ app.use(
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/articles", articleRoutes);
+
+// ✅ Fix for serving uploaded images
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

@@ -7,11 +7,22 @@ import {
 // Create local article (reporter/admin)
 export const createArticle = async (req, res) => {
   try {
-    const article = await Article.create({
-      ...req.body,
+    const { title, description, category, image } = req.body;
+
+    const articleData = {
+      title,
+      description,
+      category,
       author: req.user._id,
       source: "local",
-    });
+    };
+
+    // If base64 image present
+    if (image) {
+      articleData.imageUrl = image; // ✅ save base64 directly
+    }
+
+    const article = await Article.create(articleData);
     res.status(201).json(article);
   } catch (err) {
     res.status(500).json({ message: err.message });

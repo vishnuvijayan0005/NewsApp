@@ -3,37 +3,46 @@ import { Link } from "react-router-dom";
 
 export default function ArticleCard({ article }) {
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden p-4 hover:shadow-lg transition">
-      {/* Article Image */}
+    <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden p-4 hover:shadow-2xl transform hover:-translate-y-1 transition w-64">
+      {/* Image */}
       {article.imageUrl && (
         <img
           src={article.imageUrl}
           alt={article.title}
-          className="w-full h-48 object-cover rounded"
+          className="w-full h-36 object-cover rounded-lg mb-3"
         />
       )}
 
-      {/* Title */}
-      <h2 className="text-xl font-semibold mt-2">{article.title}</h2>
-
-      {/* Description / Content */}
-      <p className="text-gray-600 mt-1">
-        {article.description || article.content}
-      </p>
-
-      {/* Category and Date */}
-      <div className="flex items-center justify-between mt-2 text-sm text-gray-500">
-        <span className="text-blue-500">
-          Category: {article.category || "General"}
+      {/* Category & Date */}
+      <div className="flex justify-between items-center mb-2">
+        <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
+          {article.category || "General"}
         </span>
         {article.date && (
-          <span>{new Date(article.date).toLocaleDateString()}</span>
+          <span className="text-gray-400 text-xs">
+            {new Date(article.date).toLocaleDateString()}
+          </span>
         )}
       </div>
 
-      {/* Read More Button */}
-      {article._id && (
-        <Link to={article.source} className="text-blue-600 mt-3 inline-block">
+      {/* Title */}
+      <h2 className="text-md font-bold text-gray-900 dark:text-white mb-1 line-clamp-2">
+        {article.title}
+      </h2>
+
+      {/* Description */}
+      <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-3">
+        {article.description || article.content || "No description available."}
+      </p>
+
+      {/* Read More */}
+      {article.url && (
+        <Link
+          to={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block text-white bg-blue-600 hover:bg-blue-700 text-xs font-medium px-3 py-1 rounded-lg transition-colors"
+        >
           More Details →
         </Link>
       )}
