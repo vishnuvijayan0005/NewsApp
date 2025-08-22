@@ -66,12 +66,12 @@ export default function Navbar() {
                   Admin
                 </Link>
               )}
-              {(role === "admin" || role === "reporter") && (
+              {role === "reporter" && (
                 <Link
                   to="/reporter"
                   className="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100 transition"
                 >
-                  {role === "admin" ? "Add News" : "Report News"}
+                  Report News
                 </Link>
               )}
               <button

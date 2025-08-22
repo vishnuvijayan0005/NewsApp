@@ -1,21 +1,29 @@
 import express from "express";
 import {
-  addReporter,
+  addReporter, // keep for manual add
   toggleReporterStatus,
   deleteReporter,
   getAllNews,
   deleteNews,
+  getAllReporters,
+  getPendingReporters,
+  approveReporter,
 } from "../controllers/adminController.js";
+
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
-import { getAllReporters } from "../controllers/adminController.js";
 
 const router = express.Router();
-// Add this route
-router.get("/reporters", protect, adminOnly, getAllReporters);
+
 // Reporter Management
+router.get("/reporters", protect, adminOnly, getAllReporters);
 router.post("/reporters", protect, adminOnly, addReporter);
 router.patch("/reporters/:id/toggle", protect, adminOnly, toggleReporterStatus);
 router.delete("/reporters/:id", protect, adminOnly, deleteReporter);
+
+// Pending Reporter Management
+// Pending Reporter Management
+router.get("/pending-reporters", protect, adminOnly, getPendingReporters);
+router.patch("/approve-reporter/:id", protect, adminOnly, approveReporter);
 
 // News Management
 router.get("/news", protect, adminOnly, getAllNews);

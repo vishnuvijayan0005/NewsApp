@@ -1,36 +1,31 @@
+import ApprovalRequest from "../models/ApprovalRequest.js";
 import Article from "../models/Article.js";
 import {
   fetchSerapiNews,
   fetchSerapiNewsForAllCategories,
 } from "../utils/externalApi.js";
 
-// Create local article (reporter/admin)
-export const createArticle = async (req, res) => {
+// ✅ Submit article for approval (reporter)
+export const submitArticleForApproval = async (req, res) => {
   try {
     const { title, description, category, image } = req.body;
 
-    const articleData = {
-      title,
-      description,
-      category,
-      author: req.user.id,
-      source: "local",
-    };
+    const newRequest = await ApprovalRequest.create({
+      reporter: req.user.id,
+      articleData: { title, description, category, image },
+    });
 
-    // If base64 image present
-    if (image) {
-      articleData.imageUrl = image; // ✅ save base64 directly
-    }
-
-    const article = await Article.create(articleData);
-    res.status(201).json(article);
+    res.status(201).json({
+      message: "Article submitted for approval",
+      request: newRequest,
+    });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "test" });
+    console.error(err);
+    res.status(500).json({ message: err.message });
   }
 };
 
-// Get stored articles (optionally by category)
+// ✅ Fetch approved articles only
 export const getArticles = async (req, res) => {
   try {
     const { category } = req.query;
@@ -40,7 +35,6 @@ export const getArticles = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate("author", "name");
 
-    // Normalize author field so frontend can always display something
     const formatted = articles.map((a) => ({
       ...a.toObject(),
       displayAuthor: a.author?.name || a.externalAuthor || "Unknown",
@@ -52,7 +46,7 @@ export const getArticles = async (req, res) => {
   }
 };
 
-// Manually sync a single category (admin-only)
+// ✅ Sync news from SerpAPI (single category)
 export const syncSerapiNews = async (req, res) => {
   try {
     const { category = "general" } = req.body;
@@ -67,7 +61,7 @@ export const syncSerapiNews = async (req, res) => {
   }
 };
 
-// Manually sync all categories (admin-only)
+// ✅ Sync news from SerpAPI (all categories)
 export const syncSerapiNewsAll = async (_req, res) => {
   try {
     const total = await fetchSerapiNewsForAllCategories();

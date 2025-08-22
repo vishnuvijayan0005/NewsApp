@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import PendingReporter from "../models/PendingReporter.js";
+import bcrypt from "bcryptjs";
 
-// 🔑 Generate JWT with id + role
+// 🔑 Generate JWT
 const generateToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
@@ -12,21 +14,15 @@ export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
+    if (!user) return res.status(401).json({ message: "User not found" });
 
-    // ❌ Check if user is disabled
-    if (user.status === "disabled") {
+    if (user.status === "disabled")
       return res
         .status(403)
         .json({ message: "Your account is disabled. Contact admin." });
-    }
 
     const isMatch = await user.matchPassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid password" });
-    }
+    if (!isMatch) return res.status(401).json({ message: "Invalid password" });
 
     res.json({
       _id: user._id,
@@ -41,34 +37,38 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// 🟢 Register Reporter (Admin only)
+// 🟢 Register Reporter (Pending Approval)
 export const registerReporter = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const exists = await User.findOne({ email });
-    if (exists) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+    // Check if already in pending queue
+    const existingPending = await PendingReporter.findOne({ email });
+    if (existingPending)
+      return res
+        .status(400)
+        .json({ message: "You have already submitted registration." });
 
-    const user = await User.create({
+    // Check if already in users collection
+    const existingUser = await User.findOne({ email });
+    if (existingUser)
+      return res.status(400).json({ message: "User already exists" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const pending = new PendingReporter({
       name,
       email,
-      password,
-      role: "reporter",
+      password: hashedPassword,
     });
+    await pending.save();
 
     res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user._id, user.role),
+      message:
+        "Registration submitted. Admin verification required. Please try logging in after 24 hours.",
     });
   } catch (err) {
     console.error("❌ Register error:", err);
-    res
-      .status(500)
-      .json({ message: "Server error during reporter registration" });
+    res.status(500).json({ message: "Server error during registration" });
   }
 };

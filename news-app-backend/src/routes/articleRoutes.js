@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  createArticle,
+  submitArticleForApproval, // ✅ renamed
   getArticles,
   syncSerapiNews,
   syncSerapiNewsAll,
@@ -9,12 +9,16 @@ import { protect, adminOnly } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Reporter/Admin create local article with image (base64)
-router.post("/", protect, createArticle);
+// ✅ Reporter submits article for admin approval
+router.post("/", protect, submitArticleForApproval);
 
-// Other routes unchanged
+// ✅ Get approved articles (anyone can fetch)
 router.get("/", getArticles);
+
+// ✅ Sync external news (single category, admin only)
 router.post("/sync-serapi", protect, adminOnly, syncSerapiNews);
+
+// ✅ Sync external news (all categories, admin only)
 router.post("/sync-serapi-all", protect, adminOnly, syncSerapiNewsAll);
 router.post("/sync", protect, adminOnly, syncSerapiNewsAll);
 

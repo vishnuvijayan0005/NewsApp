@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../api/client.js";
 import React from "react";
 
@@ -6,57 +6,79 @@ export default function ReporterDashboard() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("general");
-  const [image, setImage] = useState(null);
+  const [imageBase64, setImageBase64] = useState(null);
   const [preview, setPreview] = useState(null);
 
-  // ✅ New states for alert messages
   const [message, setMessage] = useState(null);
   const [type, setType] = useState("");
 
-  // Convert file → base64 string
+  const [submissions, setSubmissions] = useState([]);
+
+  // Convert file → Base64
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImage(reader.result); // base64 string
-      setPreview(reader.result);
+      setImageBase64(reader.result); // Base64 string
+      setPreview(reader.result); // preview
     };
     reader.readAsDataURL(file);
   };
 
+  // Fetch reporter's submissions
+  const fetchSubmissions = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.get("/approval-requests/my", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSubmissions(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubmissions();
+  }, []);
+
+  // Submit article for approval
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const articleData = {
-        title,
-        description,
-        category,
-        image, // ✅ sending base64 instead of file
-      };
+      const token = localStorage.getItem("token");
 
-      const token = localStorage.getItem("token"); // 👈 get stored token
-
-      await api.post("/articles", articleData, {
-        headers: {
-          Authorization: `Bearer ${token}`, // 👈 attach token
+      // Send as JSON with Base64 in `imageUrl`
+      await api.post(
+        "/approval-requests",
+        {
+          title,
+          description,
+          category,
+          imageUrl: imageBase64, // match Article & ApprovalRequest field
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      setMessage("✅ Article added successfully!");
+      setMessage("✅ Article submitted for approval!");
       setType("success");
 
       setTitle("");
       setDescription("");
       setCategory("general");
-      setImage(null);
+      setImageBase64(null);
       setPreview(null);
+
+      fetchSubmissions();
     } catch (err) {
-      console.log(title, description, category, image);
       console.error(err);
-      setMessage("❌ Failed to add article.");
+      setMessage("❌ Failed to submit article.");
       setType("error");
     }
   };
@@ -67,7 +89,6 @@ export default function ReporterDashboard() {
         Reporter Dashboard
       </h1>
 
-      {/* ✅ Alert message */}
       {message && (
         <div
           className={`p-3 mb-4 rounded-lg text-center font-semibold ${
@@ -80,12 +101,13 @@ export default function ReporterDashboard() {
         </div>
       )}
 
+      {/* Article Submission Form */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 max-w-lg mx-auto space-y-4"
+        className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 max-w-lg mx-auto space-y-4 mb-8"
       >
         <h2 className="text-2xl font-semibold text-gray-900 dark:text-white text-center mb-4">
-          Add New Article
+          Submit Article for Approval
         </h2>
 
         <input
@@ -129,9 +151,66 @@ export default function ReporterDashboard() {
         )}
 
         <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition">
-          Add Article
+          Submit for Approval
         </button>
       </form>
+
+      {/* My Submissions */}
+      <div className="max-w-3xl mx-auto">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+          My Submissions
+        </h2>
+
+        {submissions.length === 0 && (
+          <p className="text-gray-700 dark:text-gray-300">
+            No submissions yet.
+          </p>
+        )}
+
+        <div className="space-y-4">
+          {submissions.map((sub) => (
+            <div
+              key={sub._id}
+              className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-4 flex flex-col md:flex-row md:justify-between items-start md:items-center"
+            >
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {sub.articleData.title}
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300">
+                  Category: {sub.articleData.category}
+                </p>
+                <p className="text-gray-700 dark:text-gray-300">
+                  Status:{" "}
+                  <span
+                    className={
+                      sub.status === "approved"
+                        ? "text-green-600"
+                        : sub.status === "rejected"
+                        ? "text-red-600"
+                        : "text-yellow-600"
+                    }
+                  >
+                    {sub.status.toUpperCase()}
+                  </span>
+                </p>
+                {sub.adminMessage && (
+                  <p className="text-gray-700 dark:text-gray-300">
+                    Admin Message: {sub.adminMessage}
+                  </p>
+                )}
+              </div>
+              {sub.articleData.imageUrl && (
+                <img
+                  src={sub.articleData.imageUrl}
+                  alt="Article"
+                  className="w-32 h-24 object-cover rounded-lg mt-2 md:mt-0 md:ml-4"
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
