@@ -24,7 +24,8 @@ It includes features like:
 
 ### Light Mode
 
-![Home Light Mode](screenshots/home_light.png)
+![Home Light Mode](screenshots/home.light.png)
+
 
 ### Dark Mode
 
@@ -32,9 +33,9 @@ It includes features like:
 
 ### Login / Register
 
-![Login Page](screenshots/login.png)
 
-_(You can add more screenshots as needed)_
+![Login dark Mode](screenshots/login.dark.png)
+![Registration ](screenshots/registeration.png)
 
 ---
 
