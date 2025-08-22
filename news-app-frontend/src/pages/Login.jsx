@@ -3,12 +3,14 @@ import api from "../api/client.js";
 import { useNavigate } from "react-router-dom";
 import React from "react";
 import { FaUser, FaLock, FaEnvelope } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Login({ setIsLoggedIn }) {
   const [isRegistering, setIsRegistering] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState({ type: "", text: "" });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,13 +31,19 @@ export default function Login({ setIsLoggedIn }) {
     if (isRegistering) {
       try {
         await api.post("/auth/register-reporter", { name, email, password });
-        alert("Registration submitted. Admin verification pending.");
+        setMessage({
+          type: "success",
+          text: "Registration submitted. Admin verification pending. Please try logging in after 24 hours.",
+        });
         setIsRegistering(false);
         setName("");
         setEmail("");
         setPassword("");
       } catch (err) {
-        alert(err.response?.data?.message || "Registration failed.");
+        setMessage({
+          type: "error",
+          text: err.response?.data?.message || "Registration failed.",
+        });
       }
       return;
     }
@@ -54,7 +62,10 @@ export default function Login({ setIsLoggedIn }) {
       else if (data.role === "reporter") navigate("/reporter");
       else navigate("/");
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed. Check credentials.");
+      setMessage({
+        type: "error",
+        text: err.response?.data?.message || "Login failed. Check credentials.",
+      });
     }
   };
 
@@ -77,6 +88,38 @@ export default function Login({ setIsLoggedIn }) {
               : "New Reporter? Register"}
           </button>
         </div>
+
+        {/* Inline notification */}
+        <AnimatePresence>
+          {message.text && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className={`mb-4 flex items-center gap-2 p-3 rounded-lg border-l-4 text-sm font-medium shadow-md ${
+                message.type === "success"
+                  ? "bg-green-100 border-green-500 text-green-800"
+                  : message.type === "error"
+                  ? "bg-red-100 border-red-500 text-red-800"
+                  : "bg-yellow-100 border-yellow-500 text-yellow-800"
+              }`}
+            >
+              {/* Icon */}
+              {message.type === "success" && (
+                <span className="text-green-600">✔️</span>
+              )}
+              {message.type === "error" && (
+                <span className="text-red-600">❌</span>
+              )}
+              {message.type === "warning" && (
+                <span className="text-yellow-600">⚠️</span>
+              )}
+
+              {/* Message text */}
+              <span>{message.text}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name field */}
@@ -129,7 +172,7 @@ export default function Login({ setIsLoggedIn }) {
         {/* Footer note */}
         {isRegistering && (
           <p className="mt-4 text-sm text-gray-400 text-center">
-            After registration, admin verification is required. Therefore, try
+            After registration, admin verification is required. Please try
             logging in after 24 hours.
           </p>
         )}
