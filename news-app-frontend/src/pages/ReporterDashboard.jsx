@@ -9,6 +9,10 @@ export default function ReporterDashboard() {
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
 
+  // ✅ New states for alert messages
+  const [message, setMessage] = useState(null);
+  const [type, setType] = useState("");
+
   // Convert file → base64 string
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -24,6 +28,7 @@ export default function ReporterDashboard() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const articleData = {
         title,
@@ -32,17 +37,27 @@ export default function ReporterDashboard() {
         image, // ✅ sending base64 instead of file
       };
 
-      await api.post("/articles", articleData);
+      const token = localStorage.getItem("token"); // 👈 get stored token
 
-      alert("Article added successfully!");
+      await api.post("/articles", articleData, {
+        headers: {
+          Authorization: `Bearer ${token}`, // 👈 attach token
+        },
+      });
+
+      setMessage("✅ Article added successfully!");
+      setType("success");
+
       setTitle("");
       setDescription("");
       setCategory("general");
       setImage(null);
       setPreview(null);
     } catch (err) {
+      console.log(title, description, category, image);
       console.error(err);
-      alert("Failed to add article.");
+      setMessage("❌ Failed to add article.");
+      setType("error");
     }
   };
 
@@ -51,6 +66,19 @@ export default function ReporterDashboard() {
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
         Reporter Dashboard
       </h1>
+
+      {/* ✅ Alert message */}
+      {message && (
+        <div
+          className={`p-3 mb-4 rounded-lg text-center font-semibold ${
+            type === "success"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+          }`}
+        >
+          {message}
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}

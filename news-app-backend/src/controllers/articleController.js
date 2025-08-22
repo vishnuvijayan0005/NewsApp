@@ -13,7 +13,7 @@ export const createArticle = async (req, res) => {
       title,
       description,
       category,
-      author: req.user._id,
+      author: req.user.id,
       source: "local",
     };
 
@@ -25,7 +25,8 @@ export const createArticle = async (req, res) => {
     const article = await Article.create(articleData);
     res.status(201).json(article);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.log(err);
+    res.status(500).json({ message: "test" });
   }
 };
 
@@ -34,10 +35,18 @@ export const getArticles = async (req, res) => {
   try {
     const { category } = req.query;
     const filter = category ? { category } : {};
+
     const articles = await Article.find(filter)
-      .populate("author", "name email role")
-      .sort({ createdAt: -1 });
-    res.json(articles);
+      .sort({ createdAt: -1 })
+      .populate("author", "name");
+
+    // Normalize author field so frontend can always display something
+    const formatted = articles.map((a) => ({
+      ...a.toObject(),
+      displayAuthor: a.author?.name || a.externalAuthor || "Unknown",
+    }));
+
+    res.json(formatted);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

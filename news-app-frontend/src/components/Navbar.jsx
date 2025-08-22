@@ -68,7 +68,7 @@ export default function Navbar() {
               )}
               {(role === "admin" || role === "reporter") && (
                 <Link
-                  to="/report-news"
+                  to="/reporter"
                   className="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100 transition"
                 >
                   {role === "admin" ? "Add News" : "Report News"}

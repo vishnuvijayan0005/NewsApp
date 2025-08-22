@@ -26,6 +26,10 @@ const articleSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    externalAuthor: {
+      type: String,
+      default: null,
+    },
     source: {
       type: String,
       enum: ["local", "serpapi"],
@@ -36,6 +40,10 @@ const articleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-articleSchema.index({ url: 1, source: 1 }, { unique: true });
+// ✅ Only enforce uniqueness for SerpApi articles
+articleSchema.index(
+  { url: 1, source: 1 },
+  { unique: true, partialFilterExpression: { source: "serpapi" } }
+);
 
 export default mongoose.model("Article", articleSchema);

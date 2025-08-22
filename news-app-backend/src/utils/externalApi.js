@@ -26,6 +26,7 @@ export const fetchSerapiNews = async (category = "general") => {
         api_key: process.env.SERAPI_KEY,
         hl: "en",
         gl: "us",
+        num: 50, // ✅ Request max 50 if supported
       },
       timeout: 15000,
     });
@@ -33,11 +34,12 @@ export const fetchSerapiNews = async (category = "general") => {
     const results = data?.news_results || [];
     const saved = [];
 
-    for (const item of results) {
+    for (const item of results.slice(0, 50)) {
+      // ✅ Ensure only top 50 processed
       const link = item?.link;
       if (!link) continue;
 
-      // ✅ check by url + source (serpapi), not "source" field as URL
+      // Skip if already exists
       const exists = await Article.findOne({ url: link, source: "serpapi" });
       if (exists) continue;
 
@@ -47,12 +49,23 @@ export const fetchSerapiNews = async (category = "general") => {
         content: item.snippet || "",
         category,
         imageUrl: item.thumbnail?.url || item.thumbnail || null,
-        author: null, // ✅ external news = no user reference
-        source: "serpapi", // ✅ matches schema enum
-        url: link, // ✅ store actual article link
+        externalAuthor: null,
+        source: "serpapi",
+        url: link,
       });
 
       saved.push(doc);
+    }
+
+    // ✅ Keep only latest 50 per category from serpapi
+    const toDelete = await Article.find({ category, source: "serpapi" })
+      .sort({ createdAt: -1 })
+      .skip(50); // skip latest 50
+
+    if (toDelete.length) {
+      const ids = toDelete.map((d) => d._id);
+      await Article.deleteMany({ _id: { $in: ids } });
+      console.log(`🗑️ Deleted ${ids.length} old ${category} articles`);
     }
 
     console.log(`✅ Saved ${saved.length} new ${category} articles`);
