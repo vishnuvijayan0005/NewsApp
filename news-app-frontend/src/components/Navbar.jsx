@@ -1,12 +1,21 @@
 import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react"; // for hamburger icons
+import { Menu, X, Sun, Moon } from "lucide-react"; // ✅ added Sun & Moon
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("theme") === "dark"
+  );
+
+  // ✅ Persist theme & apply
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
 
   useEffect(() => {
     const checkLogin = () => {
@@ -41,7 +50,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg sticky top-0 z-50">
+    <nav className="bg-gradient-to-r from-blue-600 to-indigo-700 dark:from-gray-800 dark:to-gray-900 text-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
@@ -50,7 +59,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-4">
             <Link to="/" className="hover:text-yellow-300 transition">
               Home
             </Link>
@@ -88,10 +97,25 @@ export default function Navbar() {
                 Login
               </Link>
             )}
+
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+              title="Toggle Dark/Light Mode"
+            >
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          {/* Mobile Menu */}
+          <div className="md:hidden flex items-center space-x-2">
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            >
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="focus:outline-none"
@@ -104,7 +128,7 @@ export default function Navbar() {
 
       {/* Mobile Dropdown */}
       {menuOpen && (
-        <div className="md:hidden bg-blue-700 px-4 py-3 space-y-2 shadow-md">
+        <div className="md:hidden bg-blue-700 dark:bg-gray-800 px-4 py-3 space-y-2 shadow-md">
           <Link
             to="/"
             className="block hover:text-yellow-300 transition"
