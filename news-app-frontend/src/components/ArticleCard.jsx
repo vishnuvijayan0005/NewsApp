@@ -59,7 +59,7 @@ export default function ArticleCard({ article }) {
         {article.url && (
           <Link
             to={article.url}
-            target="_blank"
+            target="_self"
             rel="noopener noreferrer"
             className="inline-block text-center text-white bg-blue-600 hover:bg-blue-700 text-sm font-medium px-3 py-2 rounded-lg transition-colors"
           >

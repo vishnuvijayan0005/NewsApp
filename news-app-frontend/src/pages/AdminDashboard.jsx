@@ -13,12 +13,15 @@ import {
   Trash2,
 } from "lucide-react"; // ✅ icons
 
+import ManageReporter from "../components/ManageReporter.jsx";
+import ManageNews from "../components/ManageNews.jsx";
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("sync");
   const [toast, setToast] = useState({ message: "", type: "" });
-
-  // State for all tabs
   const [articles, setArticles] = useState([]);
+  // State for all tabs
+
   const [reporters, setReporters] = useState([]);
   const [newReporter, setNewReporter] = useState({
     name: "",
@@ -40,16 +43,6 @@ export default function AdminDashboard() {
   const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast({ message: "", type: "" }), 3000);
-  };
-
-  // API calls
-  const fetchArticles = async () => {
-    try {
-      const { data } = await api.get("/admin/news");
-      setArticles(data);
-    } catch (err) {
-      console.error("Error fetching articles:", err);
-    }
   };
 
   const fetchReporters = async () => {
@@ -78,7 +71,15 @@ export default function AdminDashboard() {
       console.error("Error fetching approval requests:", err);
     }
   };
-
+  // API call to fetch articles
+  const fetchArticles = async () => {
+    try {
+      const { data } = await api.get("/admin/news");
+      setArticles(data);
+    } catch (err) {
+      console.error("Error fetching articles:", err);
+    }
+  };
   // Actions
   const handleSyncNews = async () => {
     try {
@@ -110,33 +111,6 @@ export default function AdminDashboard() {
         err.response?.data?.message || "Failed to add reporter",
         "error"
       );
-    }
-  };
-
-  const toggleReporter = async (id) => {
-    try {
-      await api.patch(`/admin/reporters/${id}/toggle`);
-      fetchReporters();
-    } catch (err) {
-      console.error("Toggle reporter error:", err);
-    }
-  };
-
-  const deleteReporter = async (id) => {
-    try {
-      await api.delete(`/admin/reporters/${id}`);
-      fetchReporters();
-    } catch (err) {
-      console.error("Delete reporter error:", err);
-    }
-  };
-
-  const deleteNews = async (id) => {
-    try {
-      await api.delete(`/admin/news/${id}`);
-      fetchArticles();
-    } catch (err) {
-      console.error("Delete news error:", err);
     }
   };
 
@@ -292,34 +266,7 @@ export default function AdminDashboard() {
 
         {/* MANAGE REPORTERS */}
         {activeTab === "manage-reporters" && (
-          <div className="grid md:grid-cols-2 gap-4">
-            {reporters.map((rep) => (
-              <div
-                key={rep._id}
-                className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow flex justify-between items-center"
-              >
-                <div>
-                  <p className="font-semibold">{rep.name}</p>
-                  <p className="text-sm text-gray-500">{rep.email}</p>
-                  <p className="text-sm">Status: {rep.status}</p>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => toggleReporter(rep._id)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg"
-                  >
-                    {rep.status === "active" ? "Disable" : "Enable"}
-                  </button>
-                  <button
-                    onClick={() => deleteReporter(rep._id)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg flex items-center"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ManageReporter articles={articles} fetchArticles={fetchArticles} />
         )}
 
         {/* Pending Reporters */}
@@ -354,29 +301,8 @@ export default function AdminDashboard() {
         )}
 
         {/* MANAGE NEWS */}
-        {activeTab === "manage-news" && (
-          <div className="space-y-4 max-w-3xl mx-auto">
-            {articles.length === 0 && <p>No articles yet.</p>}
-            {articles.map((art) => (
-              <div
-                key={art._id}
-                className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-4 rounded-lg"
-              >
-                <div>
-                  <p>{art.title}</p>
-                  <p>Category: {art.category}</p>
-                  <p>Author: {art.displayAuthor}</p>
-                </div>
-                <button
-                  onClick={() => deleteNews(art._id)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+        {activeTab === "manage-news" && <ManageNews articles={articles} />}
+
         {/* APPROVAL REQUESTS */}
         {activeTab === "approvals" && (
           <div className="max-w-3xl space-y-4">
