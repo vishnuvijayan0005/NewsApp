@@ -353,8 +353,90 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Approval Requests & Manage News → similar card style */}
-        {/* ...keep your existing logic but styled as cards... */}
+        {/* MANAGE NEWS */}
+        {activeTab === "manage-news" && (
+          <div className="space-y-4 max-w-3xl mx-auto">
+            {articles.length === 0 && <p>No articles yet.</p>}
+            {articles.map((art) => (
+              <div
+                key={art._id}
+                className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-4 rounded-lg"
+              >
+                <div>
+                  <p>{art.title}</p>
+                  <p>Category: {art.category}</p>
+                  <p>Author: {art.displayAuthor}</p>
+                </div>
+                <button
+                  onClick={() => deleteNews(art._id)}
+                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {/* APPROVAL REQUESTS */}
+        {activeTab === "approvals" && (
+          <div className="max-w-3xl space-y-4">
+            {approvalRequests.length === 0 && <p>No pending requests</p>}
+            {approvalRequests.map((req) => (
+              <div
+                key={req._id}
+                className="flex flex-col md:flex-row justify-between bg-gray-100 dark:bg-gray-700 p-4 rounded-lg items-start md:items-center"
+              >
+                <div className="flex-1">
+                  <h3>{req.articleData.title}</h3>
+                  <p>
+                    Reporter: {req.reporter.name} ({req.reporter.email})
+                  </p>
+                  <p>Category: {req.articleData.category}</p>
+                  {req.articleData.imageUrl && (
+                    <img
+                      src={req.articleData.imageUrl}
+                      alt="Article"
+                      className="w-32 h-24 object-cover rounded-lg mt-2 md:mt-0 md:ml-4"
+                    />
+                  )}
+                </div>
+                {req.status === "pending" && (
+                  <div className="flex flex-col gap-2 mt-2 md:mt-0">
+                    <input
+                      type="text"
+                      placeholder="Admin message"
+                      value={adminMessages[req._id] || ""}
+                      onChange={(e) =>
+                        setAdminMessages((prev) => ({
+                          ...prev,
+                          [req._id]: e.target.value,
+                        }))
+                      }
+                      className="p-2 border rounded-lg dark:bg-gray-600 dark:text-white"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleApproval(req._id, "approved")}
+                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleApproval(req._id, "rejected")}
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {req.status !== "pending" && req.adminMessage && (
+                  <p className="mt-1">Admin Message: {req.adminMessage}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
