@@ -132,9 +132,9 @@ export default function Login({ setIsLoggedIn }) {
                     : "bg-yellow-100 border-yellow-500 text-yellow-800"
                 }`}
             >
-              {message.type === "success" && <span>✔️</span>}
-              {message.type === "error" && <span>❌</span>}
-              {message.type === "warning" && <span>⚠️</span>}
+              {message.type === "success"}
+              {message.type === "error"}
+              {message.type === "warning"}
               <span>{message.text}</span>
             </motion.div>
           )}

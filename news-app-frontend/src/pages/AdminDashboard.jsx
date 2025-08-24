@@ -11,7 +11,7 @@ import {
   CheckCircle,
   XCircle,
   Trash2,
-} from "lucide-react"; // ✅ icons
+} from "lucide-react";
 
 import ManageReporter from "../components/ManageReporter.jsx";
 import ManageNews from "../components/ManageNews.jsx";
@@ -21,7 +21,7 @@ export default function AdminDashboard() {
   const [toast, setToast] = useState({ message: "", type: "" });
   const [articles, setArticles] = useState([]);
   // State for all tabs
-
+  const [syncLogs, setSyncLogs] = useState([]);
   const [reporters, setReporters] = useState([]);
   const [newReporter, setNewReporter] = useState({
     name: "",
@@ -80,24 +80,52 @@ export default function AdminDashboard() {
       console.error("Error fetching articles:", err);
     }
   };
+  // Approve/Reject Pending Reporter
+  const handlePendingReporter = async (id, status) => {
+    try {
+      await api.patch(`/admin/pending-reporters/${id}`, { status });
+      fetchPendingReporters(); // refresh the list
+      showToast(
+        `Reporter ${status}`,
+        status === "approved"
+          ? "success"
+          : status === "rejected"
+          ? "warning"
+          : "error"
+      );
+    } catch (err) {
+      console.error("Pending reporter update error:", err);
+      showToast("Failed to update reporter", "error");
+    }
+  };
+
   // Actions
   const handleSyncNews = async () => {
     try {
       const { data } = await api.post("/articles/sync-serapi-all");
-      showToast(
-        data.message || `✅ Synced ${data.count || data.total} articles!`,
-        "success"
-      );
+      const msg =
+        data.message || ` Synced ${data.count || data.total} articles!`;
+
+      //  Add log with timestamp
+      setSyncLogs((prev) => [
+        { time: new Date().toLocaleString(), message: msg },
+        ...prev,
+      ]);
+
+      showToast(msg, "success");
       fetchArticles();
     } catch (err) {
+      const errorMsg = err.response?.data?.message || " Failed to sync news";
+
+      setSyncLogs((prev) => [
+        { time: new Date().toLocaleString(), message: errorMsg },
+        ...prev,
+      ]);
+
       console.error("Sync error:", err);
-      showToast(
-        err.response?.data?.message || "❌ Failed to sync news",
-        "error"
-      );
+      showToast(errorMsg, "error");
     }
   };
-
   const handleAddReporter = async (e) => {
     e.preventDefault();
     try {
@@ -127,19 +155,6 @@ export default function AdminDashboard() {
       );
     } catch (err) {
       console.error("Approval error:", err);
-    }
-  };
-
-  const handlePendingReporter = async (id, status) => {
-    try {
-      await api.patch(`/admin/approve-reporter/${id}`, { status });
-      fetchPendingReporters();
-      fetchReporters();
-      showToast(
-        `Reporter ${status === "approved" ? "approved ✅" : "rejected ❌"}`
-      );
-    } catch (err) {
-      console.error("Pending reporter approval error:", err);
     }
   };
 
@@ -215,13 +230,34 @@ export default function AdminDashboard() {
 
         {/* SYNC */}
         {activeTab === "sync" && (
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-4">
             <button
               onClick={handleSyncNews}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2"
             >
               <RefreshCcw size={18} /> Sync News
             </button>
+
+            {/* ✅ Sync Logs */}
+            <div className="w-full max-w-2xl mt-4 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-md max-h-48 overflow-y-auto">
+              <h3 className="font-semibold mb-2 text-gray-800 dark:text-gray-200">
+                Sync Logs
+              </h3>
+              {syncLogs.length === 0 ? (
+                <p className="text-gray-500 text-sm">No syncs yet.</p>
+              ) : (
+                <ul className="text-sm space-y-1">
+                  {syncLogs.map((log, idx) => (
+                    <li key={idx}>
+                      <span className="text-gray-600 dark:text-gray-400">
+                        [{log.time}]
+                      </span>{" "}
+                      <span className="dark:text-gray-200">{log.message}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         )}
 
@@ -266,7 +302,7 @@ export default function AdminDashboard() {
 
         {/* MANAGE REPORTERS */}
         {activeTab === "manage-reporters" && (
-          <ManageReporter articles={articles} fetchArticles={fetchArticles} />
+          <ManageReporter reporters={reporters} />
         )}
 
         {/* Pending Reporters */}

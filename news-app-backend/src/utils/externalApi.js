@@ -5,7 +5,6 @@ dotenv.config();
 
 // Map categories to Google News queries
 export const CATEGORY_QUERIES = {
-  all: "latest news",
   politics: "politics news",
   sports: "sports news",
   tech: "technology news",
@@ -14,7 +13,6 @@ export const CATEGORY_QUERIES = {
   general: "top news",
 };
 
-// Fetch & store SerpAPI (Google News engine) results into DB for a category
 export const fetchSerapiNews = async (category = "general") => {
   try {
     const q = CATEGORY_QUERIES[category] || CATEGORY_QUERIES.general;
@@ -25,8 +23,8 @@ export const fetchSerapiNews = async (category = "general") => {
         q,
         api_key: process.env.SERAPI_KEY,
         hl: "en",
-        gl: "us",
-        num: 50, // ✅ Request max 50 if supported
+        gl: "in",
+        num: 50,
       },
       timeout: 15000,
     });
@@ -35,7 +33,6 @@ export const fetchSerapiNews = async (category = "general") => {
     const saved = [];
 
     for (const item of results.slice(0, 50)) {
-      // ✅ Ensure only top 50 processed
       const link = item?.link;
       if (!link) continue;
 
@@ -49,7 +46,7 @@ export const fetchSerapiNews = async (category = "general") => {
         content: item.snippet || "",
         category,
         imageUrl: item.thumbnail?.url || item.thumbnail || null,
-        externalAuthor: null,
+        externalAuthor: item.author || null,
         source: "serpapi",
         url: link,
       });
@@ -57,7 +54,7 @@ export const fetchSerapiNews = async (category = "general") => {
       saved.push(doc);
     }
 
-    // ✅ Keep only latest 50 per category from serpapi
+    // Keep only latest 50 per category from serpapi
     const toDelete = await Article.find({ category, source: "serpapi" })
       .sort({ createdAt: -1 })
       .skip(50); // skip latest 50
@@ -65,14 +62,23 @@ export const fetchSerapiNews = async (category = "general") => {
     if (toDelete.length) {
       const ids = toDelete.map((d) => d._id);
       await Article.deleteMany({ _id: { $in: ids } });
-      console.log(`🗑️ Deleted ${ids.length} old ${category} articles`);
+      console.log(
+        `🗑️ [${new Date().toLocaleString()}] Deleted ${
+          ids.length
+        } old ${category} articles`
+      );
     }
 
-    console.log(`✅ Saved ${saved.length} new ${category} articles`);
+    console.log(
+      `✅ [${new Date().toLocaleString()}] Saved ${
+        saved.length
+      } new ${category} articles`
+    );
+
     return saved;
   } catch (err) {
     console.error(
-      `❌ SerpAPI fetch error [${category}]:`,
+      `❌ [${new Date().toLocaleString()}] SerpAPI fetch error [${category}]:`,
       err.response?.data || err.message
     );
     return [];
@@ -89,6 +95,8 @@ export const fetchSerapiNewsForAllCategories = async () => {
     total += added.length;
   }
 
-  console.log(`🌍 Total new articles saved: ${total}`);
+  console.log(
+    `🌍 [${new Date().toLocaleString()}] Total new articles saved: ${total}`
+  );
   return total;
 };

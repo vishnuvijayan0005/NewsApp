@@ -12,11 +12,24 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [showScroll, setShowScroll] = useState(false);
 
-  const fetchArticles = async () => {
+  // ✅ For pagination
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchArticles = async (reset = false) => {
     try {
       setLoading(true);
-      const { data } = await api.get("/articles", { params: { category } });
-      setArticles(data);
+      const { data } = await api.get("/articles", {
+        params: { category, page, limit: 10 }, // ✅ Send page & limit
+      });
+
+      if (reset) {
+        setArticles(data.articles);
+      } else {
+        setArticles((prev) => [...prev, ...data.articles]);
+      }
+
+      setHasMore(data.hasMore);
     } catch (err) {
       console.error("Failed to fetch articles:", err);
     } finally {
@@ -24,10 +37,13 @@ export default function Home() {
     }
   };
 
+  // Reset when category changes
   useEffect(() => {
-    fetchArticles();
+    setPage(1);
+    fetchArticles(true);
   }, [category]);
 
+  // Scroll button
   useEffect(() => {
     const handleScroll = () => setShowScroll(window.scrollY > 300);
     window.addEventListener("scroll", handleScroll);
@@ -68,7 +84,8 @@ export default function Home() {
       </div>
 
       {/* Articles */}
-      {loading ? (
+      {loading && page === 1 ? (
+        // Skeleton for first load
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
             <div
@@ -78,11 +95,29 @@ export default function Home() {
           ))}
         </div>
       ) : articles.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {articles.map((a) => (
-            <ArticleCard key={a._id} article={a} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {articles.map((a) => (
+              <ArticleCard key={a._id} article={a} />
+            ))}
+          </div>
+
+          {/* ✅ Load More button */}
+          {hasMore && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={() => {
+                  setPage((prev) => prev + 1);
+                  fetchArticles();
+                }}
+                disabled={loading}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition"
+              >
+                {loading ? "Loading..." : "Load More"}
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <p className="text-center text-gray-500 dark:text-gray-400 mt-10 text-lg">
           No articles found in this category.

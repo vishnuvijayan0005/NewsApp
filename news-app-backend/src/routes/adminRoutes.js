@@ -23,7 +23,7 @@ router.delete("/reporters/:id", protect, adminOnly, deleteReporter);
 // Pending Reporter Management
 // Pending Reporter Management
 router.get("/pending-reporters", protect, adminOnly, getPendingReporters);
-router.patch("/approve-reporter/:id", protect, adminOnly, approveReporter);
+router.patch("/pending-reporters/:id", protect, adminOnly, approveReporter);
 
 // News Management
 router.get("/news", protect, adminOnly, getAllNews);
