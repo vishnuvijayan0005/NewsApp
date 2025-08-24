@@ -7,9 +7,9 @@
 //     console.log("⏳ Auto-syncing SerpAPI news for all categories...");
 //     try {
 //       const total = await fetchSerapiNewsForAllCategories();
-//       console.log(`✅ Synced ${total} new articles across all categories`);
+//       console.log(` Synced ${total} new articles across all categories`);
 //     } catch (err) {
-//       console.error("❌ Cron job failed:", err.message);
+//       console.error(" Cron job failed:", err.message);
 //     }
 //   });
 // };

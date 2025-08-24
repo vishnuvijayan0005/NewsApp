@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { Menu, X, Sun, Moon } from "lucide-react"; // ✅ added Sun & Moon
+import { Menu, X, Sun, Moon } from "lucide-react"; //  added Sun & Moon
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ export default function Navbar() {
     localStorage.getItem("theme") === "dark"
   );
 
-  // ✅ Persist theme & apply
+  //  Persist theme & apply
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
     localStorage.setItem("theme", darkMode ? "dark" : "light");
@@ -55,7 +55,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
           <Link to="/" className="font-extrabold text-2xl tracking-wide">
-            News<span className="text-yellow-300">App</span>
+            News<span className="text-yellow-300">Sync</span>
           </Link>
 
           {/* Desktop Menu */}

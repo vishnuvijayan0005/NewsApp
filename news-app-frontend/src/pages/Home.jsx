@@ -12,7 +12,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [showScroll, setShowScroll] = useState(false);
 
-  // ✅ For pagination
+  //  For pagination
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
@@ -20,7 +20,7 @@ export default function Home() {
     try {
       setLoading(true);
       const { data } = await api.get("/articles", {
-        params: { category, page, limit: 10 }, // ✅ Send page & limit
+        params: { category, page, limit: 10 }, //  Send page & limit
       });
 
       if (reset) {
@@ -59,7 +59,7 @@ export default function Home() {
       {/* Header */}
       <div className="text-center mb-10">
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">
-          📰 NewsApp
+          📰 NewsSync
         </h1>
         <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
           Stay informed with the latest updates from around the world

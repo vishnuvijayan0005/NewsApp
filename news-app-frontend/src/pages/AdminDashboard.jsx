@@ -238,7 +238,7 @@ export default function AdminDashboard() {
               <RefreshCcw size={18} /> Sync News
             </button>
 
-            {/* ✅ Sync Logs */}
+            {/*  Sync Logs */}
             <div className="w-full max-w-2xl mt-4 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-md max-h-48 overflow-y-auto">
               <h3 className="font-semibold mb-2 text-gray-800 dark:text-gray-200">
                 Sync Logs

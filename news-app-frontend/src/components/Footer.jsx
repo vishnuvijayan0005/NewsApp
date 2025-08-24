@@ -27,7 +27,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* About */}
         <div>
-          <h2 className="text-xl font-bold mb-3">NewsApp</h2>
+          <h2 className="text-xl font-bold mb-3">NewsSync</h2>
           <p className="text-gray-200 text-m mb-4">
             Stay updated with the latest and most reliable news articles. A
             modern news portal built with MERN stack.And developed by{" "}
@@ -84,7 +84,7 @@ export default function Footer() {
           <h2 className="text-xl font-bold mb-3">Contact Us</h2>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center gap-2">
-              <Mail size={16} /> support@newsapp.com
+              <Mail size={16} /> support@newssync.com
             </li>
             <li className="flex items-center gap-2">
               <Phone size={16} /> +91 00000 00000
@@ -98,7 +98,7 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="bg-blue-800 py-3 text-center text-sm text-gray-200">
-        © {new Date().getFullYear()} NewsApp. All rights reserved.
+        © {new Date().getFullYear()} NewsSync. All rights reserved.
       </div>
     </footer>
   );

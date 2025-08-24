@@ -1,4 +1,4 @@
-# 📰 NewsApp - MERN Stack News Platform
+# 📰 NewsSync - MERN Stack News Platform
 
 ![React](https://img.shields.io/badge/React-18-blue)
 ![Node.js](https://img.shields.io/badge/Node.js-16-green)
@@ -9,7 +9,7 @@
 
 ## **Project Overview**
 
-NewsApp is a full-stack MERN (MongoDB, Express, React, Node.js) application that allows users to stay updated with the latest news from around the world.  
+NewsSync is a full-stack MERN (MongoDB, Express, React, Node.js) application that allows users to stay updated with the latest news from around the world.  
 It includes features like:
 
 - **Category-based news** filtering (Politics, Sports, Tech, Business, Health, General)
@@ -26,16 +26,13 @@ It includes features like:
 
 ![Home Light Mode](screenshots/home.light.png)
 
-
 ### Dark Mode
 
 ![Home Dark Mode](screenshots/home.dark.png)
 
 ### Login / Register
 
-
 ![Login dark Mode](screenshots/login.dark.png)
-
 
 ![Registration ](screenshots/registrationform.png)
 
@@ -43,9 +40,7 @@ It includes features like:
 
 ![Admin Dashboard ](screenshots/admin.dash.png)
 
-
 ![Reporter Dashboard ](screenshots/reporter.dash.png)
-
 
 ### Footer
 
@@ -64,6 +59,7 @@ It includes features like:
 ## **Project Structure**
 
 ![Structure of Web app](screenshots/structure.png)
+
 ## Setup
 
 1. Install dependencies
