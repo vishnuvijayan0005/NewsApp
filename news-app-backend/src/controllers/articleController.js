@@ -8,11 +8,11 @@ import {
 // ✅ Submit article for approval (reporter)
 export const submitArticleForApproval = async (req, res) => {
   try {
-    const { title, description, category, image } = req.body;
+    const { title, description, url, category, image } = req.body;
 
     const newRequest = await ApprovalRequest.create({
       reporter: req.user.id,
-      articleData: { title, description, category, image },
+      articleData: { title, description, url, category, image },
     });
 
     res.status(201).json({

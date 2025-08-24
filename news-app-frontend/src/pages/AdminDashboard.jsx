@@ -74,12 +74,20 @@ export default function AdminDashboard() {
   // API call to fetch articles
   const fetchArticles = async () => {
     try {
-      const { data } = await api.get("/admin/news");
-      setArticles(data);
+      const res = await api.get("/admin/news");
+      setArticles(res.data);
     } catch (err) {
       console.error("Error fetching articles:", err);
     }
   };
+  //api call for fetching news from pending news
+  // conct fetchtempnews async ()=>{
+  //   try{
+  //     const {data } =await api.get(/admin/tempnews/${id});
+  //     setData()
+  //   }
+  // }
+
   // Approve/Reject Pending Reporter
   const handlePendingReporter = async (id, status) => {
     try {
@@ -361,7 +369,15 @@ export default function AdminDashboard() {
                       className="w-32 h-24 object-cover rounded-lg mt-2 md:mt-0 md:ml-4"
                     />
                   )}
+                  {/* New View Article Button */}
+                  <button
+                    onClick={() => handleViewArticle(req.articleData)}
+                    className="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg"
+                  >
+                    View Article
+                  </button>
                 </div>
+
                 {req.status === "pending" && (
                   <div className="flex flex-col gap-2 mt-2 md:mt-0">
                     <input
@@ -392,6 +408,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 )}
+
                 {req.status !== "pending" && req.adminMessage && (
                   <p className="mt-1">Admin Message: {req.adminMessage}</p>
                 )}

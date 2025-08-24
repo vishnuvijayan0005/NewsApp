@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
 import api from "../api/client"; // ✅ make sure path is correct
 
-function ManageNews({ articles, fetchArticles }) {
-  // Delete news
+function ManageNews({ articles: initialArticles }) {
+  const [articles, setArticles] = useState([]);
+
+  // Initialize local state when component mounts or parent articles change
+  useEffect(() => {
+    setArticles(initialArticles);
+  }, [initialArticles]);
   const deleteNews = async (id) => {
     try {
       await api.delete(`/admin/news/${id}`);
-      fetchArticles(); // refresh list after delete
+      // fetchArticles(); // refresh list after delete
+      setArticles((prev) => prev.filter((art) => art._id !== id));
     } catch (err) {
       console.error("Delete news error:", err);
     }

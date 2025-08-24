@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 
 export default function ReporterDashboard() {
   const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("general");
   const [imageBase64, setImageBase64] = useState(null);
@@ -58,6 +59,7 @@ export default function ReporterDashboard() {
           title,
           description,
           category,
+          url,
           imageUrl: imageBase64,
         },
         {
@@ -154,6 +156,14 @@ export default function ReporterDashboard() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={5}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-700 dark:text-white"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none dark:bg-gray-700 dark:text-white"
               required
             />

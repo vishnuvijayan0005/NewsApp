@@ -10,6 +10,7 @@ const approvalRequestSchema = new mongoose.Schema(
     articleData: {
       title: { type: String, required: true },
       description: { type: String, default: "" },
+      url: { type: String, default: "" },
       content: { type: String, default: "" },
       category: {
         type: String,
